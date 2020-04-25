@@ -1,12 +1,16 @@
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { addContact } from '../../actions/contactActions';
 import TextInputGroup from '../layout/TextInputGroup';
+import { v4 as uuid } from 'uuid';
 
 class AddContact extends Component {
   state = {
     name: '',
     email: '',
     phone: '',
-    errors: {}
+    errors: {},
   };
 
   onSubmit = (e) => {
@@ -31,63 +35,64 @@ class AddContact extends Component {
     }
 
     const newContact = {
+      id: uuid(),
       name,
       email,
-      phone
+      phone,
     };
 
     //// SUBMIT CONTACT ////
-
+    this.props.addContact(newContact);
     // Clear State
     this.setState({
       name: '',
       email: '',
       phone: '',
-      errors: {}
+      errors: {},
     });
 
     this.props.history.push('/');
   };
 
-  onChange = e => this.setState({ [e.target.name]: e.target.value });
+  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   render() {
     const { name, email, phone, errors } = this.state;
 
     return (
-      <div className="card mb-3">
-        <div className="card-header">Add Contact</div>
-        <div className="card-body">
+      <div className='card mb-3'>
+        <div className='card-header'>Add Contact</div>
+        <div className='card-body'>
           <form onSubmit={this.onSubmit}>
             <TextInputGroup
-              label="Name"
-              name="name"
-              placeholder="Enter Name"
+              label='Name'
+              name='name'
+              placeholder='Enter Name'
               value={name}
               onChange={this.onChange}
               error={errors.name}
             />
             <TextInputGroup
-              label="Email"
-              name="email"
-              type="email"
-              placeholder="Enter Email"
+              label='Email'
+              name='email'
+              type='email'
+              placeholder='Enter Email'
               value={email}
               onChange={this.onChange}
               error={errors.email}
             />
             <TextInputGroup
-              label="Phone"
-              name="phone"
-              placeholder="Enter Phone"
+              label='Phone'
+              name='phone'
+              placeholder='Enter Phone'
               value={phone}
               onChange={this.onChange}
               error={errors.phone}
             />
             <input
-              type="submit"
-              value="Add Contact"
-              className="btn btn-light btn-block"
+              type='submit'
+              value='Add Contact'
+              className='btn btn-light btn-block'
             />
           </form>
         </div>
@@ -96,4 +101,7 @@ class AddContact extends Component {
   }
 }
 
-export default AddContact;
+AddContact.propTypes = {
+  addContact: PropTypes.func.isRequired,
+};
+export default connect(null, { addContact })(AddContact);
