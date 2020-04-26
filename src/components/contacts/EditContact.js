@@ -1,4 +1,7 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import PropTypes from 'prop-types';
+import { getContact, updateContact } from '../../actions/contactActions';
 import TextInputGroup from '../layout/TextInputGroup';
 
 class EditContact extends Component {
@@ -6,8 +9,33 @@ class EditContact extends Component {
     name: '',
     email: '',
     phone: '',
-    errors: {}
+    errors: {},
   };
+
+  componentDidMount() {
+    const { id } = this.props.match.params;
+    this.props.getContact(id);
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.contact !== prevState.contact) {
+      return {
+        contact: nextProps.contact,
+      };
+    }
+
+    return null;
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.contact !== this.props.contact) {
+      const { name, email, phone } = this.props.contact;
+      this.setState({
+        name,
+        email,
+        phone,
+      });
+    }
+  }
 
   onSubmit = (e) => {
     e.preventDefault();
@@ -30,66 +58,66 @@ class EditContact extends Component {
       return;
     }
 
+    const { id } = this.props.match.params;
     const updContact = {
+      id,
       name,
       email,
-      phone
+      phone,
     };
-
-    const { id } = this.props.match.params;
-
     //// UPDATE CONTACT ////
+    this.props.updateContact(updContact);
 
     // Clear State
     this.setState({
       name: '',
       email: '',
       phone: '',
-      errors: {}
+      errors: {},
     });
 
     this.props.history.push('/');
   };
 
-  onChange = e => this.setState({ [e.target.name]: e.target.value });
+  onChange = (e) => this.setState({ [e.target.name]: e.target.value });
 
   render() {
     const { name, email, phone, errors } = this.state;
 
     return (
-      <div className="card mb-3">
-        <div className="card-header">Edit Contact</div>
-        <div className="card-body">
+      <div className='card mb-3'>
+        <div className='card-header'>Edit Contact</div>
+        <div className='card-body'>
           <form onSubmit={this.onSubmit}>
             <TextInputGroup
-              label="Name"
-              name="name"
-              placeholder="Enter Name"
+              label='Name'
+              name='name'
+              placeholder='Enter Name'
               value={name}
               onChange={this.onChange}
               error={errors.name}
             />
             <TextInputGroup
-              label="Email"
-              name="email"
-              type="email"
-              placeholder="Enter Email"
+              label='Email'
+              name='email'
+              type='email'
+              placeholder='Enter Email'
               value={email}
               onChange={this.onChange}
               error={errors.email}
             />
             <TextInputGroup
-              label="Phone"
-              name="phone"
-              placeholder="Enter Phone"
+              label='Phone'
+              name='phone'
+              placeholder='Enter Phone'
               value={phone}
               onChange={this.onChange}
               error={errors.phone}
             />
             <input
-              type="submit"
-              value="Update Contact"
-              className="btn btn-light btn-block"
+              type='submit'
+              value='Update Contact'
+              className='btn btn-light btn-block'
             />
           </form>
         </div>
@@ -98,4 +126,15 @@ class EditContact extends Component {
   }
 }
 
-export default EditContact;
+EditContact.propTypes = {
+  contact: PropTypes.object.isRequired,
+  getContact: PropTypes.func.isRequired,
+  updateContact: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = (state) => ({
+  contact: state.contact.contact,
+});
+export default connect(mapStateToProps, { getContact, updateContact })(
+  EditContact
+);
